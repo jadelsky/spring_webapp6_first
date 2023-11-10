@@ -2,8 +2,10 @@ package guru.springframework.spring6webapp.bootstrap;
 
 import guru.springframework.spring6webapp.domain.Author;
 import guru.springframework.spring6webapp.domain.Book;
+import guru.springframework.spring6webapp.domain.Publisher;
 import guru.springframework.spring6webapp.repositories.AuthorRepository;
 import guru.springframework.spring6webapp.repositories.BookRepository;
+import guru.springframework.spring6webapp.repositories.PublisherRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -12,10 +14,12 @@ public class BootstrapData implements CommandLineRunner {
 
     private final AuthorRepository authorRepository;
     private final BookRepository bookRepository;
+    private final PublisherRepository publisherRepository;
 
-    public BootstrapData(AuthorRepository authorRepository, BookRepository bookRepository) {
+    public BootstrapData(AuthorRepository authorRepository, BookRepository bookRepository, PublisherRepository publisherRepository) {
         this.authorRepository = authorRepository;
         this.bookRepository = bookRepository;
+        this.publisherRepository = publisherRepository;
     }
 
     @Override
@@ -24,20 +28,48 @@ public class BootstrapData implements CommandLineRunner {
         eric.setFirstName("Eric");
         eric.setLastName("Evans");
 
+        Author misko = new Author();
+        misko.setFirstName("Misko");
+        misko.setLastName("Misic");
+
         Book ddd = new Book();
         ddd.setTitle("Domain Driven Design");
         ddd.setIsbn("123456");
 
+        Book knjiga = new Book();
+        knjiga.setTitle("Miskova knjiga");
+        knjiga.setIsbn("7891011");
+
         Author ericSaved = authorRepository.save(eric);
+        Author miskoSaved = authorRepository.save(misko);
         Book dddSaved = bookRepository.save(ddd);
+        Book knjigaSaved = bookRepository.save(knjiga);
 
         ericSaved.getBooks().add(dddSaved);
+        miskoSaved.getBooks().add(knjigaSaved);
+        dddSaved.getAuthors().add(ericSaved);
+        knjigaSaved.getAuthors().add(miskoSaved);
+
+        Publisher publisher = new Publisher();
+        publisher.setPublisherName("My Publisher");
+        publisher.setAddress("123 Main");
+        Publisher savedPublisher = publisherRepository.save(publisher);
+
+        dddSaved.setPublisher(savedPublisher);
+        knjigaSaved.setPublisher(savedPublisher);
 
         authorRepository.save(ericSaved);
+        authorRepository.save(miskoSaved);
+        bookRepository.save(dddSaved);
+        bookRepository.save(knjigaSaved);
 
         System.out.println("In Bootstrap");
         System.out.println("Author count: " + authorRepository.count());
         System.out.println("Book Count: " + bookRepository.count());
+
+
+
+        System.out.println("Publisher count: " + publisherRepository.count());
 
     }
 }
